@@ -21,6 +21,8 @@ function App() {
     const [isEditModalVisible, setIsEditModalVisible] = useState(false)
     const initialEditItem = {Id: null, Text: ""}
     const [editItem, setEditItem] = useState(initialEditItem)
+    const [completingItemId, setCompletingItemId] = useState(null)
+    const [isCompletedVisible, setisCompletedVisible] = useState(false)
 
     const onAddModalHandler = () => {
         setIsAddModalVisible(true)
@@ -50,14 +52,14 @@ function App() {
     }
 
     const onItemDeleteHandler = (id) => {
-        let ccc = items.filter(item => item.id === id)[0]
+        let ccc = items.find(item => item.id === id)
         setDeleteItemText(ccc.text);
         setDeleteItemId(id);
         setIsDeleteModalVisible(true);
     };
 
     const onItemEditHandler = (id) => {
-        const item = items.filter(item => item.id === id)[0];
+        const item = items.find(item => item.id === id);
 
         setEditItem({Id: item.id, Text: item.text})
         setIsEditModalVisible(true)
@@ -78,6 +80,28 @@ function App() {
         setIsEditModalVisible(false)
     }
 
+    const onCompletedHandler = (id) => {
+        setCompletingItemId(id)
+        setisCompletedVisible(true)
+    }
+
+    function onCompletedOkHandler() {
+        setItems(produce(items, draft => {
+            const item = draft.find(item => item.id === completingItemId)
+            if (item) {
+                item.isCompleted = true
+            }
+        }))
+
+        setCompletingItemId(null)
+        setisCompletedVisible(false)
+    }
+
+    function onCompletedCancelHandler() {
+        setCompletingItemId(null)
+        setisCompletedVisible(false)
+    }
+
     return (
         <>
             {
@@ -88,7 +112,8 @@ function App() {
                                                      text={item.text}
                                                      isCompleted={item.isCompleted}
                                                      onDeleteHandler={() => onItemDeleteHandler(item.id)}
-                                                     onEditHandler={() => onItemEditHandler(item.id)}/>))
+                                                     onEditHandler={() => onItemEditHandler(item.id)}
+                                                     onCompleteHandler={() => onCompletedHandler(item.id)}/>))
             }
             <div className="d-flex ">
                 <button className="btn btn-success ms-auto" onClick={onAddModalHandler}>Add new</button>
@@ -158,6 +183,21 @@ function App() {
                     </Button>
                     <Button variant="danger" onClick={onEditModalOkHandle}>
                         Save
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={isCompletedVisible} onHide={onCompletedCancelHandler}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Completing...</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>Do you want to complete this item?</Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={onCompletedCancelHandler}>
+                        Cancel
+                    </Button>
+                    <Button variant="success" onClick={onCompletedOkHandler}>
+                        Complete
                     </Button>
                 </Modal.Footer>
             </Modal>
