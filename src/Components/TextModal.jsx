@@ -1,7 +1,7 @@
 ﻿import React from "react";
 import { Modal, Button } from "react-bootstrap";
 
-export default function DeleteModal({ show, onHide, headerMessage, message, onAction, onActionText }) {
+export default function TextModal({ show, onHide, headerMessage, message, onAction, onActionText }) {
     return (
         <Modal show={show} onHide={onHide}>
             <Modal.Header closeButton>

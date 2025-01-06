@@ -5,12 +5,10 @@ import ToDoItem from "./Components/ToDoItem/todoitem.jsx";
 import './App.css'
 
 import data from "./items.json"
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import {Form} from "react-bootstrap";
 import {createGUID} from "./Components/createGUID.jsx";
 import {produce} from "immer";
 import TextModal from "./Components/TextModal.jsx";
+import EditTextModal from "./Components/EditTextModal.jsx";
 
 function App() {
     const [items, setItems] = useState(data.items)
@@ -23,8 +21,9 @@ function App() {
     const initialEditItem = {Id: null, Text: ""}
     const [editItem, setEditItem] = useState(initialEditItem)
     const [completingItemId, setCompletingItemId] = useState(null)
-    const [isCompletedVisible, setisCompletedVisible] = useState(false)
+    const [isCompletedVisible, setIsCompletedVisible] = useState(false)
 
+    // Adding handlers
     const onAddModalHandler = () => {
         setIsAddModalVisible(true)
     }
@@ -32,7 +31,7 @@ function App() {
         setIsAddModalVisible(false)
     }
 
-    const onAddModalSaveHandle = (x) => {
+    const onAddModalSaveHandle = () => {
         setIsAddModalVisible(false);
         const newId = createGUID();
         setItems([...items,
@@ -41,8 +40,10 @@ function App() {
                 text: newItemText,
                 isCompleted: false
             }])
+        setNewItemText("")
     }
 
+    // Delete handlers
     const onDeleteModalCloseHandle = () => {
         setIsDeleteModalVisible(false)
     }
@@ -53,12 +54,13 @@ function App() {
     }
 
     const onItemDeleteHandler = (id) => {
-        let ccc = items.find(item => item.id === id)
-        setDeleteItemText(ccc.text);
+        let item = items.find(item => item.id === id)
+        setDeleteItemText(item.text);
         setDeleteItemId(id);
         setIsDeleteModalVisible(true);
     };
 
+    // Edit handlers
     const onItemEditHandler = (id) => {
         const item = items.find(item => item.id === id);
 
@@ -81,9 +83,10 @@ function App() {
         setIsEditModalVisible(false)
     }
 
+    // Complete handlers
     const onCompletedHandler = (id) => {
         setCompletingItemId(id)
-        setisCompletedVisible(true)
+        setIsCompletedVisible(true)
     }
 
     function onCompletedOkHandler() {
@@ -95,14 +98,15 @@ function App() {
         }))
 
         setCompletingItemId(null)
-        setisCompletedVisible(false)
+        setIsCompletedVisible(false)
     }
 
     function onCompletedCancelHandler() {
         setCompletingItemId(null)
-        setisCompletedVisible(false)
+        setIsCompletedVisible(false)
     }
 
+    // Return
     return (
         <>
             {
@@ -120,75 +124,42 @@ function App() {
                 <button className="btn btn-success ms-auto" onClick={onAddModalHandler}>Add new</button>
             </div>
 
-            <Modal show={isAddModalVisible} onHide={onAddModalCloseHandle}>
+            <EditTextModal show={isAddModalVisible}
+                           onHide={onAddModalCloseHandle}
+                           headerMessage={"Adding new..."}
+                           message={"Item text"}
+                           value={newItemText}
+                           onAction={onAddModalSaveHandle}
+                           onActionText={"Add"}
+                           onActionDisable={!newItemText.trim()}
+                           onTextChanged={(e) => setNewItemText(e.target.value)}/>
 
-                <Modal.Header closeButton>
-                    <Modal.Title>Adding new...</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group>
-                            <Form.Label column="c1">Item text</Form.Label>
-                            <Form.Control type="text" placeholder="Enter item text"
-                                          onChange={(e) => setNewItemText(e.target.value)}></Form.Control>
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={onAddModalCloseHandle}>
-                        Close
-                    </Button>
-                    <Button variant="primary" onClick={onAddModalSaveHandle} disabled={!newItemText.trim()}>
-                        Add
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-
-            <TextModal
-                show={isDeleteModalVisible}
-                onHide={onDeleteModalCloseHandle}
-                message={"Delete '" + deleteItemText + "'?"}
-                onAction={onDeleteModalDeleteHandle}
-                headerMessage={"Deleting..."}
-                onActionText={"Delete"}
+            <TextModal show={isDeleteModalVisible}
+                       onHide={onDeleteModalCloseHandle}
+                       message={"Delete '" + deleteItemText + "'?"}
+                       onAction={onDeleteModalDeleteHandle}
+                       headerMessage={"Deleting..."}
+                       onActionText={"Delete"}
             />
 
-            <Modal show={isEditModalVisible} onHide={onEditModalCancelHandle}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Editing...</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group>
-                            <Form.Label column="c1">Item text</Form.Label>
-                            <Form.Control id="edit-text"
-                                          type="text"
-                                          placeholder="Enter item text"
-                                          value={editItem.Text}
-                                          onChange={(e) => {
-                                              const setItem = {Id: editItem.Id, Text: e.target.value}
-                                              setEditItem(setItem)
-                                          }}/>
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={onEditModalCancelHandle}>
-                        Close
-                    </Button>
-                    <Button variant="danger" onClick={onEditModalOkHandle}>
-                        Save
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+            <EditTextModal show={isEditModalVisible}
+                           onHide={onEditModalCancelHandle}
+                           onActionText={"Save"}
+                           onAction={onEditModalOkHandle}
+                           headerMessage={"Editing..."}
+                           message={"Item text"}
+                           value={editItem.Text}
+                           onTextChanged={(e) => {
+                               const setItem = {Id: editItem.Id, Text: e.target.value}
+                               setEditItem(setItem)
+                           }}/>
 
-            <TextModal
-                show={isCompletedVisible}
-                onHide={onCompletedCancelHandler}
-                onActionText={"Complete"}
-                onAction={onCompletedOkHandler}
-                headerMessage={"Completing..."}
-                message={"Do you want to complete this item?"}
+            <TextModal show={isCompletedVisible}
+                       onHide={onCompletedCancelHandler}
+                       onActionText={"Complete"}
+                       onAction={onCompletedOkHandler}
+                       headerMessage={"Completing..."}
+                       message={"Do you want to complete this item?"}
             />
         </>
     )
