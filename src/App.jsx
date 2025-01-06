@@ -10,6 +10,7 @@ import Modal from 'react-bootstrap/Modal';
 import {Form} from "react-bootstrap";
 import {createGUID} from "./Components/createGUID.jsx";
 import {produce} from "immer";
+import TextModal from "./Components/TextModal.jsx";
 
 function App() {
     const [items, setItems] = useState(data.items)
@@ -143,20 +144,14 @@ function App() {
                 </Modal.Footer>
             </Modal>
 
-            <Modal show={isDeleteModalVisible} onHide={onDeleteModalCloseHandle}>
-                <Modal.Header closeButton>
-                    <Modal.Title>deleting...</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>Delete Item '{deleteItemText}'</Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={onDeleteModalCloseHandle}>
-                        Close
-                    </Button>
-                    <Button variant="danger" onClick={onDeleteModalDeleteHandle}>
-                        Delete
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+            <TextModal
+                show={isDeleteModalVisible}
+                onHide={onDeleteModalCloseHandle}
+                message={"Delete '" + deleteItemText + "'?"}
+                onAction={onDeleteModalDeleteHandle}
+                headerMessage={"Deleting..."}
+                onActionText={"Delete"}
+            />
 
             <Modal show={isEditModalVisible} onHide={onEditModalCancelHandle}>
                 <Modal.Header closeButton>
@@ -187,20 +182,14 @@ function App() {
                 </Modal.Footer>
             </Modal>
 
-            <Modal show={isCompletedVisible} onHide={onCompletedCancelHandler}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Completing...</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>Do you want to complete this item?</Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={onCompletedCancelHandler}>
-                        Cancel
-                    </Button>
-                    <Button variant="success" onClick={onCompletedOkHandler}>
-                        Complete
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+            <TextModal
+                show={isCompletedVisible}
+                onHide={onCompletedCancelHandler}
+                onActionText={"Complete"}
+                onAction={onCompletedOkHandler}
+                headerMessage={"Completing..."}
+                message={"Do you want to complete this item?"}
+            />
         </>
     )
 }
