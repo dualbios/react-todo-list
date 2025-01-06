@@ -1,14 +1,16 @@
-import {useState} from "react";
-import 'bootstrap/dist/css/bootstrap.css';
 import React from "react";
-import ToDoItem from "./Components/ToDoItem/todoitem.jsx";
-import './App.css'
-
-import data from "./items.json"
-import {createGUID} from "./Components/createGUID.jsx";
+import {useState} from "react";
 import {produce} from "immer";
+import 'bootstrap/dist/css/bootstrap.css';
+
+import {createGUID} from "./Components/createGUID.jsx";
+
+import './App.css'
+import ToDoItem from "./Components/ToDoItem/todoitem.jsx";
 import TextModal from "./Components/TextModal.jsx";
 import EditTextModal from "./Components/EditTextModal.jsx";
+
+import data from "./items.json"
 
 function App() {
     const [items, setItems] = useState(data.items)
