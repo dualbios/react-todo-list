@@ -5,7 +5,7 @@ export default function ToDoItem({id, text, isCompleted, onDeleteHandler, onEdit
     return (
         <div className="d-flex justify-content-between align-items-center p-2 border mb-2">
             <div className="form-check me-2">
-                <input className="form-check-input" type="checkbox" id="checkbox" checked={isCompleted}/>
+                <input className="form-check-input" type="checkbox" id="checkbox" checked={isCompleted} readOnly/>
                 <label className="form-check-label" htmlFor="checkbox">
                     {/* Optional label text */}
                 </label>
