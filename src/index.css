@@ -23,6 +23,18 @@ a:hover {
   color: #535bf2;
 }
 
+.mainNavigation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #333;
+  color: white;
+  padding: 10px 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
 body {
   margin: 0;
   display: flex;
@@ -86,12 +98,14 @@ button:focus-visible {
 
 .side-panel-container.open .side-panel {
   right: 0; /* Slide in when open */
+  z-index: 1001;
 }
 
 .toggle-button {
   top: 20px;
-  left: 0px;
-  margin: 2px;
+  left: 0;
+  margin-left: 20px;
+  width: 20px;
   /*transform: rotate(-90deg);*/
   padding: 2px 2px;
   background-color: #007bff;
@@ -103,5 +117,9 @@ button:focus-visible {
 
 .toggle-button:hover {
   background-color: #0056b3;
+}
+
+.panelCloseButton {
+  background-color: #f9f9f9;
 }
 
