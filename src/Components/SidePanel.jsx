@@ -1,7 +1,7 @@
-﻿import React, { useState } from "react";
-//import "./SidePanel.css"; // Import CSS for styling
+﻿import React, {useState} from "react";
+import closeIconUrl from "../../src/assets/close.svg";
 
-const SidePanel = ({ children }) => {
+const SidePanel = ({children}) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const togglePanel = () => {
@@ -14,11 +14,16 @@ const SidePanel = ({ children }) => {
                 {isOpen ? "-" : "+"}
             </button>
             <div className={`side-panel-container ${isOpen ? "open" : "closed"}`}>
-            <div className="side-panel">
-                <h2>Side Panel</h2>
-                <div>{children}</div>
+                <div className="side-panel" style={{display: "flex", alignItems: "start"}}>
+                    <button className="panelCloseButton "
+                            onClick={togglePanel}>
+                        <img src={closeIconUrl}
+                             alt="close"
+                             style={{width: "12px", height: "12px", marginRight: "0px", padding:"0px"}}/>
+                    </button>
+                    {children}
+                </div>
             </div>
-        </div>
         </div>
     );
 };

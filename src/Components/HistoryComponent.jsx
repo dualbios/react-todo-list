@@ -9,9 +9,9 @@ export function HistoryComponent() {
             <div className="d-flex flex-column">
                 {historyItems.map((item, index) => {
                     return (
-                        <div key={index} className="d-flex">
-                            <div className="me-3">{item.type}</div>
-                            <div>{item.text}</div>
+                        <div key={index} className="d-">
+                            <span className="me-3">{item.type}</span>
+                            <span className="">{item.text}</span>
                         </div>
                     )
                 })}
