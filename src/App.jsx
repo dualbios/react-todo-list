@@ -12,6 +12,8 @@ import EditTextModal from "./Components/EditTextModal.jsx";
 
 import { useSelector, useDispatch } from 'react-redux'
 import { increment, decrement, setState, incrementCompleted, decrementCompleted, setStateCompleted } from "./DataStore/itemsCountSlice.jsx"
+import { add, clear } from "./DataStore/historySlice.jsx"
+
 import data from "./items.json"
 
 function App() {
@@ -28,6 +30,7 @@ function App() {
     const [isCompletedVisible, setIsCompletedVisible] = useState(false)
     
     const itemsCountDispatcher = useDispatch()
+    const historyDispatcher = useDispatch()
     itemsCountDispatcher(setState(items.length))
     itemsCountDispatcher(setStateCompleted(items.filter(x=>x.isCompleted).length))
 
@@ -50,6 +53,7 @@ function App() {
             }])
         setNewItemText("")
         itemsCountDispatcher(increment())
+        historyDispatcher(add({type: "add", id: newId, text: newItemText}))
     }
 
     // Delete handlers
@@ -58,6 +62,7 @@ function App() {
     }
 
     const onDeleteModalDeleteHandle = () => {
+        historyDispatcher(add({type: "delete", id: deleteItemId, text: deleteItemText}))
         setItems(items.filter(item => item.id !== deleteItemId));
         setIsDeleteModalVisible(false)
         itemsCountDispatcher(decrement())
@@ -65,6 +70,8 @@ function App() {
 
     const onItemDeleteHandler = (id) => {
         let item = items.find(item => item.id === id)
+        historyDispatcher(add({type: "delete", id: item.id, text: item.text}))
+        
         setDeleteItemText(item.text);
         setDeleteItemId(id);
         setIsDeleteModalVisible(true);
@@ -85,6 +92,7 @@ function App() {
                 item.text = editItem.Text;
             }
         }))
+        historyDispatcher(add({type: "edit", id: editItem.Id, text: editItem.Text}))
         setEditItem(initialEditItem)
         setIsEditModalVisible(false)
     }
@@ -106,7 +114,7 @@ function App() {
                 item.isCompleted = true
             }
         }))
-
+        historyDispatcher(add({type: "complete", id: completingItemId, text: items.find(x=>x.id === completingItemId).text}))
         setCompletingItemId(null)
         setIsCompletedVisible(false)
     }
