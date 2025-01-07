@@ -10,6 +10,8 @@ import ToDoItem from "./Components/ToDoItem/todoitem.jsx";
 import TextModal from "./Components/TextModal.jsx";
 import EditTextModal from "./Components/EditTextModal.jsx";
 
+import { useSelector, useDispatch } from 'react-redux'
+import { increment, decrement, setState, incrementCompleted, decrementCompleted, setStateCompleted } from "./DataStore/itemsCountSlice.jsx"
 import data from "./items.json"
 
 function App() {
@@ -24,6 +26,10 @@ function App() {
     const [editItem, setEditItem] = useState(initialEditItem)
     const [completingItemId, setCompletingItemId] = useState(null)
     const [isCompletedVisible, setIsCompletedVisible] = useState(false)
+    
+    const itemsCountDispatcher = useDispatch()
+    itemsCountDispatcher(setState(items.length))
+    itemsCountDispatcher(setStateCompleted(items.filter(x=>x.isCompleted).length))
 
     // Adding handlers
     const onAddModalHandler = () => {
@@ -43,6 +49,7 @@ function App() {
                 isCompleted: false
             }])
         setNewItemText("")
+        itemsCountDispatcher(increment())
     }
 
     // Delete handlers
@@ -53,6 +60,7 @@ function App() {
     const onDeleteModalDeleteHandle = () => {
         setItems(items.filter(item => item.id !== deleteItemId));
         setIsDeleteModalVisible(false)
+        itemsCountDispatcher(decrement())
     }
 
     const onItemDeleteHandler = (id) => {
