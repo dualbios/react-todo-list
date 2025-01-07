@@ -3,7 +3,8 @@
 export const itemsCountSlice = createSlice({
     name: 'itemsCount',
     initialState: {
-        value: 0
+        value: 0,
+        completedCount: 0
     },
     reducers: {
         increment: state => {
@@ -13,12 +14,19 @@ export const itemsCountSlice = createSlice({
             state.value -= 1
         },
         setState: (state, val) => {
-            console.log(val)
             state.value = val.payload
+        },
+        decrementCompleted: state => {
+            state.completedCount -= 1
+        },
+        incrementCompleted: state => {
+            state.completedCount += 1
+        },
+        setStateCompleted: (state, val) => {
+            state.completedCount = val.payload
         }
     }
 })
 
-export const {increment, decrement, setState} = itemsCountSlice.actions
-
+export const {increment, decrement, setState, incrementCompleted, decrementCompleted, setStateCompleted} = itemsCountSlice.actions
 export default itemsCountSlice.reducer

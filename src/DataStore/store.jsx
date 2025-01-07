@@ -3,6 +3,6 @@ import itemsCountReducer from "./itemsCountSlice.jsx";
 
 export default configureStore({
     reducer: {
-        counter: itemsCountReducer
+        itemCounterReducer: itemsCountReducer
     }
 })
