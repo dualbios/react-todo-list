@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {useState} from "react";
 import {produce} from "immer";
 import 'bootstrap/dist/css/bootstrap.css';
@@ -18,13 +18,14 @@ import {
     setStateCompleted
 } from "./DataStore/itemsCountSlice.jsx"
 import {add, clear} from "./DataStore/historySlice.jsx"
+import {addTodo, editTodo, toggleTodo, removeTodo, setTodos} from "./DataStore/mainDataSlice.jsx"
 
-import data from "./items.json"
 import ModalForm from "./Modals/ModalForm.jsx";
 import {Form} from "react-bootstrap";
+import * as todoListApi from "./DataStore/TodoApi.jsx";
 
 function App() {
-    const [items, setItems] = useState(data.items)
+    const [isLoading, setIsLoading] = useState(false)
     const [isAddModalVisible, setIsAddModalVisible] = useState(false)
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false)
     const [newItemText, setNewItemText] = useState("")
@@ -36,10 +37,28 @@ function App() {
     const [completingItemId, setCompletingItemId] = useState(null)
     const [isCompletedVisible, setIsCompletedVisible] = useState(false)
 
-    const itemsCountDispatcher = useDispatch()
-    const historyDispatcher = useDispatch()
-    itemsCountDispatcher(setState(items.length))
-    itemsCountDispatcher(setStateCompleted(items.filter(x => x.isCompleted).length))
+    const items = useSelector(state => state.mainDataReducer.todoItems)
+    const dispatch = useDispatch()
+
+    useEffect(() => {
+        setIsLoading(true)
+
+        async function fetchData() {
+            const response = await todoListApi.getToDoList()
+
+            if (response !== undefined) {
+                dispatch(setTodos(response))
+                dispatch(setState(response.length))
+                dispatch(setStateCompleted(response.filter(x => x.isCompleted).length))
+            }
+        }
+
+        fetchData()
+            .catch(e => console.log(e))
+            .finally(() => {
+                setIsLoading(false)
+            });
+    }, [])
 
     // Adding handlers
     const onAddModalHandler = () => {
@@ -50,18 +69,15 @@ function App() {
         setIsAddModalVisible(false)
     }
 
-    const onAddModalSaveHandle = () => {
+    const onAddModalSaveHandle = async () => {
         setIsAddModalVisible(false);
         const newId = createGUID();
-        setItems([...items,
-            {
-                id: newId,
-                text: newItemText,
-                isCompleted: false
-            }])
+
+        dispatch(addTodo({id: newId, text: newItemText, isCompleted: false}));
         setNewItemText("")
-        itemsCountDispatcher(increment())
-        historyDispatcher(add({type: "add", id: newId, text: newItemText}))
+        dispatch(increment())
+        dispatch(add({type: "add", id: newId, text: newItemText}))
+        await todoListApi.createToDoListItem({id: newId, text: newItemText, isCompleted: false})
     }
 
     // Delete handlers
@@ -69,16 +85,17 @@ function App() {
         setIsDeleteModalVisible(false)
     }
 
-    const onDeleteModalDeleteHandle = () => {
-        historyDispatcher(add({type: "delete", id: deleteItemId, text: deleteItemText}))
-        setItems(items.filter(item => item.id !== deleteItemId));
+    const onDeleteModalDeleteHandle = async () => {
+        dispatch(add({type: "delete", id: deleteItemId, text: deleteItemText}))
         setIsDeleteModalVisible(false)
-        itemsCountDispatcher(decrement())
+        dispatch(decrement())
+        dispatch(removeTodo(deleteItemId))
+        await todoListApi.deleteToDoListItem(deleteItemId)
     }
 
     const onItemDeleteHandler = (id) => {
         let item = items.find(item => item.id === id)
-        historyDispatcher(add({type: "delete", id: item.id, text: item.text}))
+        dispatch(add({type: "delete", id: item.id, text: item.text}))
 
         setDeleteItemText(item.text);
         setDeleteItemId(id);
@@ -93,16 +110,13 @@ function App() {
         setIsEditModalVisible(true)
     }
 
-    const onEditModalOkHandle = () => {
-        setItems(produce(items, draft => {
-            const item = draft.find(item => item.id === editItem.Id)
-            if (item) {
-                item.text = editItem.Text;
-            }
-        }))
-        historyDispatcher(add({type: "edit", id: editItem.Id, text: editItem.Text}))
+    const onEditModalOkHandle = async () => {
+        dispatch(editTodo({id: editItem.Id, text: editItem.Text}))
+        dispatch(add({type: "edit", id: editItem.Id, text: editItem.Text}))
+        await todoListApi.updateToDoListItem({id: editItem.Id, text: editItem.Text})
         setEditItem(initialEditItem)
         setIsEditModalVisible(false)
+
     }
 
     const onEditModalCancelHandle = () => {
@@ -115,18 +129,15 @@ function App() {
         setIsCompletedVisible(true)
     }
 
-    function onCompletedOkHandler() {
-        setItems(produce(items, draft => {
-            const item = draft.find(item => item.id === completingItemId)
-            if (item) {
-                item.isCompleted = true
-            }
-        }))
-        historyDispatcher(add({
+    const onCompletedOkHandler = async () => {
+        dispatch(add({
             type: "complete",
             id: completingItemId,
             text: items.find(x => x.id === completingItemId).text
         }))
+        dispatch(toggleTodo(completingItemId))
+        await todoListApi.updateToDoListItem({id: completingItemId, isCompleted: true})
+
         setCompletingItemId(null)
         setIsCompletedVisible(false)
     }
@@ -140,15 +151,17 @@ function App() {
     return (
         <>
             {
-                items.length === 0
-                    ? <div className="alert alert-warning">No items</div>
-                    : items.map((item) => (<ToDoItem key={item.id}
-                                                     id={item.id}
-                                                     text={item.text}
-                                                     isCompleted={item.isCompleted}
-                                                     onDeleteHandler={() => onItemDeleteHandler(item.id)}
-                                                     onEditHandler={() => onItemEditHandler(item.id)}
-                                                     onCompleteHandler={() => onCompletedHandler(item.id)}/>))
+                isLoading
+                    ? <div className="alert alert-info">Loading...</div>
+                    : (items.length === 0
+                        ? <div className="alert alert-warning">No items</div>
+                        : items.map((item) => (<ToDoItem key={item.id}
+                                                         id={item.id}
+                                                         text={item.text}
+                                                         isCompleted={item.isCompleted}
+                                                         onDeleteHandler={() => onItemDeleteHandler(item.id)}
+                                                         onEditHandler={() => onItemEditHandler(item.id)}
+                                                         onCompleteHandler={() => onCompletedHandler(item.id)}/>)))
             }
             <div className="d-flex ">
                 <button className="btn btn-success ms-auto" onClick={onAddModalHandler}>Add new</button>
