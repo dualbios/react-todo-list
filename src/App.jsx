@@ -25,7 +25,7 @@ import {Form} from "react-bootstrap";
 import * as todoListApi from "./DataStore/TodoApi.jsx";
 
 function App() {
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
     const [isAddModalVisible, setIsAddModalVisible] = useState(false)
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false)
     const [newItemText, setNewItemText] = useState("")
@@ -56,6 +56,7 @@ function App() {
         fetchData()
             .catch(e => console.log(e))
             .finally(() => {
+                dispatch(add({type: "loaded", id: null, text: null}))
                 setIsLoading(false)
             });
     }, [])
