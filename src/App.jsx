@@ -7,14 +7,14 @@ import {createGUID} from "./Components/createGUID.jsx";
 
 import './App.css'
 import ToDoItem from "./Components/ToDoItem/todoitem.jsx";
-import TextModal from "./Components/TextModal.jsx";
-import EditTextModal from "./Components/EditTextModal.jsx";
 
 import { useSelector, useDispatch } from 'react-redux'
 import { increment, decrement, setState, incrementCompleted, decrementCompleted, setStateCompleted } from "./DataStore/itemsCountSlice.jsx"
 import { add, clear } from "./DataStore/historySlice.jsx"
 
 import data from "./items.json"
+import ModalForm from "./Modals/ModalForm.jsx";
+import {Form} from "react-bootstrap";
 
 function App() {
     const [items, setItems] = useState(data.items)
@@ -39,6 +39,7 @@ function App() {
         setIsAddModalVisible(true)
     }
     const onAddModalCloseHandle = () => {
+        setNewItemText("")
         setIsAddModalVisible(false)
     }
 
@@ -142,43 +143,61 @@ function App() {
                 <button className="btn btn-success ms-auto" onClick={onAddModalHandler}>Add new</button>
             </div>
 
-            <EditTextModal show={isAddModalVisible}
+            <ModalForm show={isAddModalVisible}
                            onHide={onAddModalCloseHandle}
                            headerMessage={"Adding new..."}
-                           message={"Item text"}
-                           value={newItemText}
                            onAction={onAddModalSaveHandle}
-                           onActionText={"Add"}
-                           onActionDisable={!newItemText.trim()}
-                           onTextChanged={(e) => setNewItemText(e.target.value)}/>
+                           onActionText="Add"
+                           onActionDisable={!newItemText.trim()}>
+                <Form>
+                    <Form.Group>
+                        <Form.Label column="c1">Item text</Form.Label>
+                        <Form.Control id="edit-text"
+                                      type="text"
+                                      placeholder="Enter item text"
+                                      value={newItemText}
+                                      onChange={(e) => setNewItemText(e.target.value)}/>
+                    </Form.Group>
+                </Form>
+            </ModalForm>
 
-            <TextModal show={isDeleteModalVisible}
+            <ModalForm show={isDeleteModalVisible}
                        onHide={onDeleteModalCloseHandle}
-                       message={"Delete '" + deleteItemText + "'?"}
                        onAction={onDeleteModalDeleteHandle}
-                       headerMessage={"Deleting..."}
-                       onActionText={"Delete"}
-            />
+                       headerMessage="Deleting..."
+                       onActionText="Delete"
+            >
+                {"Delete '" + deleteItemText + "'?"}
+            </ModalForm>
 
-            <EditTextModal show={isEditModalVisible}
+            <ModalForm show={isEditModalVisible}
                            onHide={onEditModalCancelHandle}
-                           onActionText={"Save"}
+                           onActionText="Save"
                            onAction={onEditModalOkHandle}
-                           headerMessage={"Editing..."}
-                           message={"Item text"}
-                           value={editItem.Text}
-                           onTextChanged={(e) => {
-                               const setItem = {Id: editItem.Id, Text: e.target.value}
-                               setEditItem(setItem)
-                           }}/>
-
-            <TextModal show={isCompletedVisible}
+                           headerMessage="Editing...">
+                <Form>
+                    <Form.Group>
+                        <Form.Label column="c1">Item text</Form.Label>
+                        <Form.Control id="edit-text"
+                                      type="text"
+                                      placeholder="Enter item text"
+                                      value={editItem.Text}
+                                      onChange={(e) => {
+                                          const setItem = {Id: editItem.Id, Text: e.target.value}
+                                          setEditItem(setItem)
+                                      }}/>
+                    </Form.Group>
+                </Form>
+            </ModalForm>
+            
+            <ModalForm show={isCompletedVisible}
                        onHide={onCompletedCancelHandler}
                        onActionText={"Complete"}
                        onAction={onCompletedOkHandler}
                        headerMessage={"Completing..."}
-                       message={"Do you want to complete this item?"}
-            />
+            >
+                Do you want to complete this item?
+            </ModalForm>
         </>
     )
 }
