@@ -10,16 +10,19 @@ export const mainDataSlice = createSlice({
             state.todoItems = val.payload.sort(sortIsCompleted)
         },
         addTodo: (state, val) => {
-            state.todoItems.push(val.payload)
-            state.todoItems = state.todoItems.sort(sortIsCompleted)
+            let array = state.todoItems
+            array.push(val.payload)
+            state.todoItems = array.sort(sortIsCompleted)
         },
         removeTodo: (state, val) => {
             state.todoItems = state.todoItems.filter((todo) => todo.id !== val.payload)
         },
         toggleTodo: (state, val) => {
-            const todoItem = state.todoItems.find((todo) => todo.id === val.payload)
+            let array = state.todoItems
+            const todoItem = array.find((todo) => todo.id === val.payload)
             todoItem.isCompleted = true
-            state.todoItems = state.todoItems.sort(sortIsCompleted)
+            
+            state.todoItems = array.sort(sortIsCompleted)
         },
         editTodo: (state, val) => {
             const todoItem = state.todoItems.find((todo) => todo.id === val.payload.id)
