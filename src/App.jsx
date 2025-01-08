@@ -8,9 +8,16 @@ import {createGUID} from "./Components/createGUID.jsx";
 import './App.css'
 import ToDoItem from "./Components/ToDoItem/todoitem.jsx";
 
-import { useSelector, useDispatch } from 'react-redux'
-import { increment, decrement, setState, incrementCompleted, decrementCompleted, setStateCompleted } from "./DataStore/itemsCountSlice.jsx"
-import { add, clear } from "./DataStore/historySlice.jsx"
+import {useSelector, useDispatch} from 'react-redux'
+import {
+    increment,
+    decrement,
+    setState,
+    incrementCompleted,
+    decrementCompleted,
+    setStateCompleted
+} from "./DataStore/itemsCountSlice.jsx"
+import {add, clear} from "./DataStore/historySlice.jsx"
 
 import data from "./items.json"
 import ModalForm from "./Modals/ModalForm.jsx";
@@ -28,11 +35,11 @@ function App() {
     const [editItem, setEditItem] = useState(initialEditItem)
     const [completingItemId, setCompletingItemId] = useState(null)
     const [isCompletedVisible, setIsCompletedVisible] = useState(false)
-    
+
     const itemsCountDispatcher = useDispatch()
     const historyDispatcher = useDispatch()
     itemsCountDispatcher(setState(items.length))
-    itemsCountDispatcher(setStateCompleted(items.filter(x=>x.isCompleted).length))
+    itemsCountDispatcher(setStateCompleted(items.filter(x => x.isCompleted).length))
 
     // Adding handlers
     const onAddModalHandler = () => {
@@ -72,7 +79,7 @@ function App() {
     const onItemDeleteHandler = (id) => {
         let item = items.find(item => item.id === id)
         historyDispatcher(add({type: "delete", id: item.id, text: item.text}))
-        
+
         setDeleteItemText(item.text);
         setDeleteItemId(id);
         setIsDeleteModalVisible(true);
@@ -115,7 +122,11 @@ function App() {
                 item.isCompleted = true
             }
         }))
-        historyDispatcher(add({type: "complete", id: completingItemId, text: items.find(x=>x.id === completingItemId).text}))
+        historyDispatcher(add({
+            type: "complete",
+            id: completingItemId,
+            text: items.find(x => x.id === completingItemId).text
+        }))
         setCompletingItemId(null)
         setIsCompletedVisible(false)
     }
@@ -144,11 +155,11 @@ function App() {
             </div>
 
             <ModalForm show={isAddModalVisible}
-                           onHide={onAddModalCloseHandle}
-                           headerMessage={"Adding new..."}
-                           onAction={onAddModalSaveHandle}
-                           onActionText="Add"
-                           onActionDisable={!newItemText.trim()}>
+                       onHide={onAddModalCloseHandle}
+                       headerMessage={"Adding new..."}
+                       onAction={onAddModalSaveHandle}
+                       onActionText="Add"
+                       onActionDisable={!newItemText.trim()}>
                 <Form>
                     <Form.Group>
                         <Form.Label column="c1">Item text</Form.Label>
@@ -165,16 +176,15 @@ function App() {
                        onHide={onDeleteModalCloseHandle}
                        onAction={onDeleteModalDeleteHandle}
                        headerMessage="Deleting..."
-                       onActionText="Delete"
-            >
+                       onActionText="Delete">
                 {"Delete '" + deleteItemText + "'?"}
             </ModalForm>
 
             <ModalForm show={isEditModalVisible}
-                           onHide={onEditModalCancelHandle}
-                           onActionText="Save"
-                           onAction={onEditModalOkHandle}
-                           headerMessage="Editing...">
+                       onHide={onEditModalCancelHandle}
+                       onActionText="Save"
+                       onAction={onEditModalOkHandle}
+                       headerMessage="Editing...">
                 <Form>
                     <Form.Group>
                         <Form.Label column="c1">Item text</Form.Label>
@@ -189,13 +199,12 @@ function App() {
                     </Form.Group>
                 </Form>
             </ModalForm>
-            
+
             <ModalForm show={isCompletedVisible}
                        onHide={onCompletedCancelHandler}
                        onActionText={"Complete"}
                        onAction={onCompletedOkHandler}
-                       headerMessage={"Completing..."}
-            >
+                       headerMessage={"Completing..."}>
                 Do you want to complete this item?
             </ModalForm>
         </>
